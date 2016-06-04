@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<head>
+	<title>合成测试示例</title>
+
+</head>
+
+<body>
+	<h2>这是一个合成测试示例</h2>
+	<textarea id = "something"></textarea>
+	
+	<!-- 开始合成 -->
+	<input type = "button" value = "合成" onclick = "beginTo();">
+	
+
+</br>
+	传文件进行合成
+	<input type = "file" accept = ".txt" id = "file">
+</br>
+	<input type = "button" value = "文件内容" onclick = "readText();">
+	
+	<div id = "result"></div>
+	<input type = "button" value = "进行合成" onclick = "beginToDo();">
+
+
+	<script src="http://blog.faultylabs.com/files/md5.js"></script>	
+	<script src="http://webapi.openspeech.cn/socket.io/socket.io.js"></script>
+	<script src='http://webapi.openspeech.cn/fingerprint.js'></script>
+	<script src="http://webapi.openspeech.cn/tts.min.js"></script>
+	<script type="text/javascript">
+	    /**
+		  * 初始化Session对象
+		  */
+		  var session = new IFlyTtsSession({
+		  	'url' : 'http://webapi.openspeech.cn/',							
+		  	'interval' : '30000', 
+		  	'disconnect_hint' : 'disconnect',
+		  	'sub' : 'tts'
+		  });
+		  var audio = null;
+
+
+		/**
+		  * 输入文本，输出语音播放链接 
+		  * @content 待合成文本(不超过4096字节)
+		  */
+		  function play(content) {
+		  	/***********************************************************以下签名过程需根据实际应用信息填入***************************************************/
+
+		    var appid = "5527b9e3";                              //应用APPID，在open.voicecloud.cn上申请即可获得
+		    var timestamp = new Date().toLocaleTimeString();                      //当前时间戳，例new Date().toLocaleTimeString()
+            var expires = 60000;                          //签名失效时间，单位:ms，例60000		
+		    //!!!为避免secretkey泄露，签名函数调用代码建议在服务器上完成
+		    var signature = faultylabs.MD5(appid + '&' + timestamp + '&' + expires + '&' + "dd69a340966c512d");		
+		    /************************************************************以上签名过程需根据实际应用信息填入**************************************************/
+		    
+		    var params = { "params" : "vcn = aisbabyxu,aue = speex-wb;7, spd = 50, vol = 50, tte = utf8, caller.appid=" + appid + ",timestamp=" + timestamp + ",expires=" + expires, "signature" : signature, "gat" : "mp3"};
+	
+		    session.start(params, content, function (err, obj)
+		    {
+		    	if(err) {
+		    		alert("语音合成发生错误，错误代码 ：" + err);
+		    	} else {
+		    		if(audio != null)
+		    		{
+		    			audio.pause();
+		    		}
+		    		audio = new Audio();
+		    		audio.src = '';
+		    		audio.play();
+		    		audio.src = "http://webapi.openspeech.cn/" + obj.audio_url;
+		    		audio.play();
+		    	}
+		    });
+		};
+
+		// 通过文本框传文字进行合成
+		var inputsomething = document.getElementById('something');
+		function beginTo(){
+			play(inputsomething.value);
+		}
+
+		// 通过文件上传进行合成
+		// // 显示文件大小
+		// 	var file = document.getElementById('file');
+			
+		// 	div = document.createElement('div');
+		// 	div.innerHTML = "文件大小为" + file.size;
+		// 	document.body.appendChild(div);
+
+		// 显示文件内容
+		function readText(){
+			
+			var reader = null,
+			file = document.getElementById('file');
+			if(FileReader){
+				reader = new FileReader();
+			}else{
+				alert(cannot)
+			}
+			reader.readAsText(file.files[0],"utf-8");
+			reader.onload = function(){
+				document.getElementById('result').innerHTML = reader.result;
+			};
+		}
+		function beginToDo(){
+			var something = document.getElementById('result').value;
+			play(something);
+
+		}
+		
+		
+		</script>
+	</body>
+	</html>
